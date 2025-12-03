@@ -171,6 +171,39 @@ var people = new List<Person>
 //
 
 
+// Task - 7 -------------------------------------<. . .>
+
+// var peopleInMostPopulatedCities = countries
+//     .SelectMany(country =>
+//     {
+//         var countryCities = cities.Where(c => c.CountryId == country.Id).ToList();
+//
+//         var maxPopulation = countryCities.Max(c => c.Population);
+//
+//         var mostPopulatedCities = countryCities
+//             .Where(c => c.Population == maxPopulation)
+//             .ToList();
+//
+//         var peopleInCities = people
+//             .Where(p => mostPopulatedCities.Any(mc => mc.Id == p.CityId))
+//             .Select(p => new
+//             {
+//                 Country = country.Name,
+//                 City = mostPopulatedCities.First(c => c.Id == p.CityId).Name,
+//                 Person = p.FullName,
+//                 Age = p.Age
+//             });
+//
+//         return peopleInCities;
+//     });
+//
+// foreach (var item in peopleInMostPopulatedCities)
+// {
+//     Console.WriteLine($"{item.Country}: {item.City} – {item.Person} ({item.Age})");
+// }
+
+
+
 // Task - 8
 
 // int cityNameLength = Convert.ToInt32(Console.ReadLine());
@@ -229,22 +262,28 @@ var people = new List<Person>
 
 
 // Task - 10
-
 int diapasonFrom = Convert.ToInt32(Console.ReadLine());
 int diapasonTill = Convert.ToInt32(Console.ReadLine());
 
 var result =
     from city in cities
     join person in people on city.Id equals person.CityId
-    where person.Age > diapasonFrom && person.Age < diapasonTill
+    where person.Age >= diapasonFrom && person.Age <= diapasonTill
+    group person by city into cityGroup
+    orderby cityGroup.Count() descending
     select new
     {
-        CityName = city.Name,
-        Person = person
+        CityName = cityGroup.Key.Name,
+        Count = cityGroup.Count()
     };
 
-foreach (var item in result)
-{
-    Console.WriteLine(item.CityName);
-}
+var cityWithMostPeople = result.FirstOrDefault();
 
+if (cityWithMostPeople != null)
+{
+    Console.WriteLine($"City: {cityWithMostPeople.CityName}, People in range: {cityWithMostPeople.Count}");
+}
+else
+{
+    Console.WriteLine("No people found in the given age range.");
+}
